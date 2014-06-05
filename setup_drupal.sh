@@ -69,6 +69,7 @@ function install {
     
     cd ..
     chown -R www-data:www-data $SITE_NAME
+    chmod -R g+w $SITE_NAME
 
     if [ ! -f /etc/apache2/sites-enabled/$SITE_NAME.conf ]; then
       DRUPAL_DIR="`pwd`/$SITE_NAME"
