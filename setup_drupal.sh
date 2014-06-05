@@ -131,9 +131,9 @@ function uninstall {
 
 # main program switch
 case "$MODE" in
-    "install") install
+    install) install
     ;;
-    "uninstall") uninstall
+    uninstall) uninstall
     ;;
     *) usage
     ;;
