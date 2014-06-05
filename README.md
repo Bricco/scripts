@@ -23,5 +23,5 @@ sudo chmod +x setup_drupal.sh
 
 **Usage**
 ```
-setup_drupal.sh install mycoolsite
+sudo setup_drupal.sh install mycoolsite
 ```
