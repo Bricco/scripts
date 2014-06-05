@@ -24,9 +24,9 @@ SITE_NAME=$2
 MODULE_LIST="ctools features field_group field_collection pathauto views"
 
 function mysql_user_str {
-    read -sp "Enter your MySQL password (ENTER for none): " $sqlpasswd
+    read -sp "Enter your MySQL password (ENTER for none): " sqlpasswd
     if [ -n "$sqlpasswd" ]; then
-      mysql_user_str="-u root -p $sqlpasswd"
+      mysql_user_str="-u root -p$sqlpasswd"
     else
       mysql_user_str="-u root"
     fi
