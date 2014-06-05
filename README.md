@@ -2,3 +2,21 @@ scripts
 =======
 
 Nifty shell scripts that helps in everday work
+
+## setup-drupal.sh
+A script that is used for a quick install of a vanilla Drupal and some common modules. It has both install and uninstall capability.
+What it does:
+* Installs latest Drupal
+* Installs some common modules
+* Creates a drush make file
+* Creates MySQL database and user grants
+* Creates Apache virtual host
+* Adds domain to local hosts file
+
+**Installation**
+Copy or download setup-drupal.sh to /usr/local/bin/ and chmod +x it.
+
+**Usage**
+```
+setup-drupal.sh install mycoolsite
+```
