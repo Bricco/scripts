@@ -23,6 +23,7 @@ sudo chmod +x setup_drupal.sh
 ```
 
 **Usage**
+cd to your favourite web folder (the script installs Drupal to your current folder). 
 ```
 sudo setup_drupal.sh install mycoolsite
 ```
