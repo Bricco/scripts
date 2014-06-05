@@ -14,6 +14,7 @@ What it does:
 * Adds domain to local hosts file
 
 **Installation**
+
 As root, copy or download setup-drupal.sh to /usr/local/bin/ and chmod +x it.
 ```
 cd /usr/local/bin
@@ -25,3 +26,7 @@ sudo chmod +x setup_drupal.sh
 ```
 sudo setup_drupal.sh install mycoolsite
 ```
+```
+sudo setup_drupal.sh uninstall mycoolsite
+```
+
