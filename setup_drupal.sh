@@ -23,6 +23,16 @@ MODE=$1
 SITE_NAME=$2
 MODULE_LIST="ctools features field_group field_collection pathauto views"
 
+MYSQL_DIR=/var/lib/mysql
+APACHE_CREDENTIALS="www-data:www-data"
+APACHE_CMD=apache2ctl
+
+if [ "$(uname)" == "Darwin" ]; then
+  MYSQL_DIR=/usr/local/mysql/data
+  APACHE_CREDENTIALS="_www:_www"
+  APACHE_CMD=apachectl
+fi
+
 function mysql_user_str {
     read -sp "Enter your MySQL password (ENTER for none): " mysqlRootPassword
     if [ -n "$mysqlRootPassword" ]; then
@@ -42,7 +52,7 @@ function install {
         exit
     fi
 
-    if [ ! -d /var/lib/mysql/$SITE_NAME ]; then
+    if [ ! -d $MYSQL_DIR/$SITE_NAME ]; then
         echo "Creating database $SITE_NAME"
         mysql_user_str=$(mysql_user_str)
         echo $mysql_user_str
@@ -68,7 +78,7 @@ function install {
     drush generate-makefile > $SITE_NAME.make
     
     cd ..
-    chown -R www-data:www-data $SITE_NAME
+    chown -R $APACHE_CREDENTIALS $SITE_NAME
     chmod -R g+w $SITE_NAME
 
     if [ ! -f /etc/apache2/sites-enabled/$SITE_NAME.conf ]; then
@@ -91,7 +101,7 @@ function install {
       </VirtualHost>" > /etc/apache2/sites-enabled/$SITE_NAME.conf
 
       echo "Restarting Apache"
-      apache2ctl restart
+      $APACHE_CMD restart
     fi
 
     if [ $(grep -c "dev.$SITE_NAME.se" /etc/hosts) -eq 0 ]; then
@@ -108,7 +118,7 @@ function uninstall {
         exit
     fi
     
-    if [ -d /var/lib/mysql/$SITE_NAME ]; then
+    if [ -d $MYSQL_DIR/$SITE_NAME ]; then
         echo "Dropping database $SITE_NAME"
         mysql_user_str=$(mysql_user_str)
         echo $mysql_user_str
@@ -124,7 +134,7 @@ function uninstall {
     fi
 
     echo "Restarting Apache"
-    apache2ctl restart
+    $APACHE_CMD restart
 
     if [ $(grep -c "dev.$SITE_NAME.se" /etc/hosts) -gt 0 ]; then
         echo "Removing dev.$SITE_NAME.se from hosts-file"
