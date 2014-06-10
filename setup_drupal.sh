@@ -4,9 +4,9 @@
 #
 # @author stefan.norman@bricco.se
 
-# Make sure only root can run our script
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 1>&2
+# Make sure no root user running
+if [[ $EUID -eq 0 ]]; then
+   echo "This script must should NOT be run as root" 1>&2
    exit 1
 fi
 
@@ -78,13 +78,13 @@ function install {
     drush generate-makefile > $SITE_NAME.make
     
     cd ..
-    chown -R $APACHE_CREDENTIALS $SITE_NAME
     chmod -R g+w $SITE_NAME
+    sudo chown -R $APACHE_CREDENTIALS $SITE_NAME
 
     if [ ! -f /etc/apache2/sites-enabled/$SITE_NAME.conf ]; then
       DRUPAL_DIR="`pwd`/$SITE_NAME"
       echo "Adding virtual host to Apache"
-      echo "<VirtualHost *:80>
+      echo -e "<VirtualHost *:80>
       ServerName dev.$SITE_NAME.se
 
       DocumentRoot $DRUPAL_DIR
@@ -98,15 +98,15 @@ function install {
         Order allow,deny
         allow from all
       </Directory>
-      </VirtualHost>" > /etc/apache2/sites-enabled/$SITE_NAME.conf
+      </VirtualHost>" | sudo tee /etc/apache2/sites-enabled/$SITE_NAME.conf
 
       echo "Restarting Apache"
-      $APACHE_CMD restart
+      sudo $APACHE_CMD restart
     fi
 
     if [ $(grep -c "dev.$SITE_NAME.se" /etc/hosts) -eq 0 ]; then
         echo "Adding dev.$SITE_NAME.se to hosts-file"
-        echo "127.0.0.1 dev.$SITE_NAME.se" >> /etc/hosts
+        echo -e "127.0.0.1 dev.$SITE_NAME.se" | sudo tee -a /etc/hosts
     fi
 }
 
@@ -126,20 +126,20 @@ function uninstall {
     fi
     
     DRUPAL_DIR="`pwd`/$SITE_NAME"
-    rm -rf $DRUPAL_DIR
+    sudo rm -rf $DRUPAL_DIR
     
     if [ -f /etc/apache2/sites-enabled/$SITE_NAME.conf ]; then
       echo "Removing virtual host from Apache"
-      rm -f /etc/apache2/sites-enabled/$SITE_NAME.conf
+      sudo rm -f /etc/apache2/sites-enabled/$SITE_NAME.conf
     fi
 
     echo "Restarting Apache"
-    $APACHE_CMD restart
+    sudo $APACHE_CMD restart
 
     if [ $(grep -c "dev.$SITE_NAME.se" /etc/hosts) -gt 0 ]; then
         echo "Removing dev.$SITE_NAME.se from hosts-file"
         grep -v "127.0.0.1 dev.$SITE_NAME.se" /etc/hosts > /tmp/hosts
-        mv /tmp/hosts /etc/hosts
+        sudo mv /tmp/hosts /etc/hosts
     fi
 }
 
