@@ -26,11 +26,13 @@ MODULE_LIST="ctools features field_group field_collection pathauto views"
 MYSQL_DIR=/var/lib/mysql
 APACHE_CREDENTIALS="www-data:www-data"
 APACHE_CMD=apache2ctl
+APACHE_VHOSTS_DIR=/etc/apache2/sites-enabled
 
 if [ "$(uname)" == "Darwin" ]; then
   MYSQL_DIR=/usr/local/mysql/data
   APACHE_CREDENTIALS="_www:_www"
   APACHE_CMD=apachectl
+  APACHE_VHOSTS_DIR=/etc/apache2/other
 fi
 
 function mysql_user_str {
@@ -81,7 +83,7 @@ function install {
     chmod -R g+w $SITE_NAME
     sudo chown -R $APACHE_CREDENTIALS $SITE_NAME
 
-    if [ ! -f /etc/apache2/sites-enabled/$SITE_NAME.conf ]; then
+    if [ ! -f $APACHE_VHOSTS_DIR/$SITE_NAME.conf ]; then
       DRUPAL_DIR="`pwd`/$SITE_NAME"
       echo "Adding virtual host to Apache"
       echo -e "<VirtualHost *:80>
@@ -98,7 +100,7 @@ function install {
         Order allow,deny
         allow from all
       </Directory>
-      </VirtualHost>" | sudo tee /etc/apache2/sites-enabled/$SITE_NAME.conf
+      </VirtualHost>" | sudo tee $APACHE_VHOSTS_DIR/$SITE_NAME.conf
 
       echo "Restarting Apache"
       sudo $APACHE_CMD restart
@@ -128,9 +130,9 @@ function uninstall {
     DRUPAL_DIR="`pwd`/$SITE_NAME"
     sudo rm -rf $DRUPAL_DIR
     
-    if [ -f /etc/apache2/sites-enabled/$SITE_NAME.conf ]; then
+    if [ -f $APACHE_VHOSTS_DIR/$SITE_NAME.conf ]; then
       echo "Removing virtual host from Apache"
-      sudo rm -f /etc/apache2/sites-enabled/$SITE_NAME.conf
+      sudo rm -f $APACHE_VHOSTS_DIR/$SITE_NAME.conf
     fi
 
     echo "Restarting Apache"
