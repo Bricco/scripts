@@ -56,7 +56,7 @@ function install {
         echo "Creating database $SITE_NAME"
         mysql_user_str=$(mysql_user_str)
         echo $mysql_user_str
-        mysqladmin $mysql_user_str create $SITE_NAME
+        mysql $mysql_user_str -e "create database $SITE_NAME character set utf8 collate utf8_swedish_ci"
         mysql $mysql_user_str -e "grant all on $SITE_NAME.* to '$SITE_NAME'@'localhost' identified by 'secret'"
     fi
 
