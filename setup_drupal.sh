@@ -15,9 +15,11 @@ function usage {
     exit 1
 }
 
-if [ ${#@} -ne 2 ]; then
+if [[ ${#@} -ne 2 &&  "$1" != "upgrade" ]]; then
   usage;
 fi
+
+
 
 MODE=$1
 SITE_NAME=$2
