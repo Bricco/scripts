@@ -21,7 +21,9 @@ fi
 
 MODE=$1
 SITE_NAME=$2
-MODULE_LIST="ctools features field_group field_collection pathauto views"
+MODULE_LIST="ctools features field_group field_collection pathauto views admin_menu devel module_filter"
+MODULE_DISABLE="toolbar"
+MODULE_ENABLE="admin_menu_toolbar views_ui"
 
 MYSQL_DIR=/var/lib/mysql
 APACHE_CREDENTIALS="www-data:www-data"
@@ -76,6 +78,19 @@ function install {
         drush dl $MODULE
         drush en $MODULE -y
     done
+    
+    for MODULE in $MODULE_ENABLE
+    do
+        echo "Installing module $MODULE..."
+        drush en $MODULE -y
+    done
+    
+    for MODULE in $MODULE_DISABLE
+    do
+        echo "Disable module $MODULE..."
+        drush dis $MODULE -y
+    done
+    
     echo "Generating make file $SITE_NAME.make"
     drush generate-makefile > $SITE_NAME.make
     
