@@ -160,15 +160,27 @@ function uninstall {
     fi
 }
 
+function upgrade {
+
+        BASEDIR=$(dirname $0)
+
+        echo "Upgrading $BASEDIR/setup_drupal.sh to the latest version..."
+        cd /tmp
+        sudo wget -q https://raw.githubusercontent.com/Bricco/scripts/master/setup_drupal.sh
+        sudo mv /tmp/setup_drupal.sh $BASEDIR
+        sudo chmod +x $BASEDIR/setup_drupal.sh
+        cd -
+}
+
 # main program switch
 case "$MODE" in
     install) install
     ;;
     uninstall) uninstall
     ;;
+    upgrade) upgrade
+    ;;
+
     *) usage
     ;;
 esac
-
-
-exit
