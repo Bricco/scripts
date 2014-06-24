@@ -37,14 +37,10 @@ fi
 
 function mysql_user_str {
     read -sp "Enter your MySQL password (ENTER for none): " mysqlRootPassword
-    if [ -n "$mysqlRootPassword" ]; then
-      while ! mysql -u root -p$mysqlRootPassword  -e ";" ; do
-        read -p "Can't connect, please retry: " mysqlRootPassword
-      done
-      echo "-u root -p$mysqlRootPassword"
-    else
-      echo "-u root"
-    fi
+    while ! mysql -u root --password="$mysqlRootPassword"  -e ";" ; do
+      read -p "Can't connect, please retry: " mysqlRootPassword
+    done
+    echo $mysqlRootPassword
 }
 
 function install {
@@ -57,9 +53,8 @@ function install {
     if [ ! -d $MYSQL_DIR/$SITE_NAME ]; then
         echo "Creating database $SITE_NAME"
         mysql_user_str=$(mysql_user_str)
-        echo $mysql_user_str
-        mysql $mysql_user_str -e "create database $SITE_NAME character set utf8 collate utf8_swedish_ci"
-        mysql $mysql_user_str -e "grant all on $SITE_NAME.* to '$SITE_NAME'@'localhost' identified by 'secret'"
+        mysql -u root --password="$mysql_user_str" -e "create database $SITE_NAME character set utf8 collate utf8_swedish_ci"
+        mysql -u root --password="$mysql_user_str" -e "grant all on $SITE_NAME.* to '$SITE_NAME'@'localhost' identified by 'secret'"
     fi
 
     echo "Downloading Drupal..."
@@ -123,8 +118,7 @@ function uninstall {
     if [ -d $MYSQL_DIR/$SITE_NAME ]; then
         echo "Dropping database $SITE_NAME"
         mysql_user_str=$(mysql_user_str)
-        echo $mysql_user_str
-        mysqladmin $mysql_user_str -f drop $SITE_NAME
+        mysql -u root --password="$mysql_user_str" -e "drop database $SITE_NAME"
     fi
     
     DRUPAL_DIR="`pwd`/$SITE_NAME"
