@@ -15,13 +15,17 @@ function usage {
     exit 1
 }
 
-if [ ${#@} -ne 2 ]; then
+if [[ ${#@} -ne 2 &&  "$1" != "upgrade" ]]; then
   usage;
 fi
 
+
+
 MODE=$1
 SITE_NAME=$2
-MODULE_LIST="ctools features field_group field_collection pathauto views"
+MODULE_LIST="ctools features field_group field_collection pathauto views admin_menu devel module_filter"
+MODULE_DISABLE="toolbar"
+MODULE_ENABLE="admin_menu_toolbar views_ui"
 
 MYSQL_DIR=/var/lib/mysql
 APACHE_CREDENTIALS="www-data:www-data"
@@ -71,6 +75,19 @@ function install {
         drush dl $MODULE
         drush en $MODULE -y
     done
+    
+    for MODULE in $MODULE_ENABLE
+    do
+        echo "Installing module $MODULE..."
+        drush en $MODULE -y
+    done
+    
+    for MODULE in $MODULE_DISABLE
+    do
+        echo "Disable module $MODULE..."
+        drush dis $MODULE -y
+    done
+    
     echo "Generating make file $SITE_NAME.make"
     drush generate-makefile > $SITE_NAME.make
     
@@ -139,15 +156,27 @@ function uninstall {
     fi
 }
 
+function upgrade {
+
+        BASEDIR=$(dirname $0)
+
+        echo "Upgrading $BASEDIR/setup_drupal.sh to the latest version..."
+        cd /tmp
+        sudo wget -q https://raw.githubusercontent.com/Bricco/scripts/master/setup_drupal.sh
+        sudo mv /tmp/setup_drupal.sh $BASEDIR
+        sudo chmod +x $BASEDIR/setup_drupal.sh
+        cd -
+}
+
 # main program switch
 case "$MODE" in
     install) install
     ;;
     uninstall) uninstall
     ;;
+    upgrade) upgrade
+    ;;
+
     *) usage
     ;;
 esac
-
-
-exit
