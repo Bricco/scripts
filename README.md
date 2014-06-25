@@ -20,7 +20,7 @@ As root, copy or download setup-drupal.sh and chmod +x it.
 Ubuntu/Linux
 ```
 cd /usr/local/bin
-sudo wget https://raw.githubusercontent.com/Bricco/scripts/master/setup_drupal.sh
+sudo wget -O setup_drupal.sh --no-check-certificate https://raw.githubusercontent.com/Bricco/scripts/master/setup_drupal.sh
 sudo chmod +x setup_drupal.sh
 ```
 
