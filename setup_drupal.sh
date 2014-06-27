@@ -23,18 +23,23 @@ fi
 
 MODE=$1
 SITE_NAME=$2
-MODULE_LIST="ctools features field_group field_collection pathauto views admin_menu devel module_filter"
+MODULE_LIST="ctools features strongarm field_group field_collection pathauto views admin_menu devel module_filter"
 MODULE_DISABLE="toolbar"
 MODULE_ENABLE="admin_menu_toolbar views_ui"
 
 MYSQL_DIR=/var/lib/mysql
-APACHE_CREDENTIALS="www-data:www-data"
 APACHE_CMD=apache2ctl
 APACHE_VHOSTS_DIR=/etc/apache2/sites-enabled
+if [ -f /etc/apache2/envvars ]; then
+  APACHE_USER=$(grep APACHE_RUN_USER /etc/apache2/envvars | sed -e "s/export APACHE_RUN_USER=//g")
+  APACHE_GROUP=$(grep APACHE_RUN_GROUP /etc/apache2/envvars | sed -e "s/export APACHE_RUN_GROUP=//g")
+else
+  APACHE_USER=$(grep ^User /etc/apache2/httpd.conf | sed -e "s/User //g")
+  APACHE_GROUP=$(grep ^Group /etc/apache2/httpd.conf | sed -e "s/Group //g")
+fi
 
 if [ "$(uname)" == "Darwin" ]; then
   MYSQL_DIR=/usr/local/mysql/data
-  APACHE_CREDENTIALS="_www:_www"
   APACHE_CMD=apachectl
   APACHE_VHOSTS_DIR=/etc/apache2/other
 fi
@@ -93,7 +98,7 @@ function install {
     
     cd ..
     chmod -R g+w $SITE_NAME
-    sudo chown -R $APACHE_CREDENTIALS $SITE_NAME
+    sudo chown -R $APACHE_USER:$APACHE_GROUP $SITE_NAME
 
     if [ ! -f $APACHE_VHOSTS_DIR/$SITE_NAME.conf ]; then
       DRUPAL_DIR="`pwd`/$SITE_NAME"
